@@ -51,10 +51,10 @@ export function SpecimenCard({ specimen, baseUrl }: SpecimenCardProps) {
   return (
     <>
       <Card className="p-4 flex flex-col gap-3">
-        {specimen.imageUrl && (
+        {(specimen.specimenPhotoUrl || specimen.imageUrl) && (
           <div className="h-32 rounded-md overflow-hidden bg-muted">
             <img
-              src={specimen.imageUrl}
+              src={specimen.specimenPhotoUrl ?? specimen.imageUrl ?? ''}
               alt={specimen.name}
               className="w-full h-full object-cover"
             />
@@ -115,14 +115,16 @@ export function SpecimenCard({ specimen, baseUrl }: SpecimenCardProps) {
 
       {/* Edit dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl flex flex-col max-h-[90vh] p-0 gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
             <DialogTitle>Edit Specimen</DialogTitle>
           </DialogHeader>
-          <SpecimenForm
-            specimen={specimen}
-            onSuccess={() => setEditOpen(false)}
-          />
+          <div className="overflow-y-auto px-6 pb-6 flex-1">
+            <SpecimenForm
+              specimen={specimen}
+              onSuccess={() => setEditOpen(false)}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 

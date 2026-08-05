@@ -66,6 +66,7 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
     functions: specimen?.functions ?? '',
     clinicalRelevance: specimen?.clinicalRelevance ?? '',
     imageUrl: specimen?.imageUrl ?? '',
+    specimenPhotoUrl: specimen?.specimenPhotoUrl ?? '',
     additionalNotes: specimen?.additionalNotes ?? '',
   })
 
@@ -88,6 +89,7 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
           collectionDate: form.collectionDate || undefined,
           donorInfo: form.donorInfo || undefined,
           imageUrl: form.imageUrl || undefined,
+          specimenPhotoUrl: form.specimenPhotoUrl || undefined,
           additionalNotes: form.additionalNotes || undefined,
         })
       }
@@ -292,26 +294,69 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
           />
         </div>
 
+        {/* Specimen Photo — taken by you */}
         <div className="flex flex-col gap-2">
-          <Label htmlFor="imageUrl">Diagram / Photo URL</Label>
+          <Label htmlFor="specimenPhotoUrl">
+            Specimen Photo URL{' '}
+            <span className="text-muted-foreground font-normal">(your actual jar photo)</span>
+          </Label>
+          <Input
+            id="specimenPhotoUrl"
+            value={form.specimenPhotoUrl}
+            onChange={(e) => set('specimenPhotoUrl')(e.target.value)}
+            placeholder="Paste the URL of your jar/specimen photo"
+            type="url"
+          />
+          <p className="text-xs text-muted-foreground">
+            Take a photo of the jar with any phone. Upload it to{' '}
+            <a
+              href="https://imgur.com/upload"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              imgur.com/upload
+            </a>
+            {' '}(free, no account needed) — then right-click the uploaded image and copy the image address. Paste it here.
+          </p>
+          {form.specimenPhotoUrl && (
+            <div className="rounded-lg overflow-hidden border border-border bg-muted h-40 mt-1">
+              <img
+                src={form.specimenPhotoUrl}
+                alt="Specimen photo preview"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  ;(e.target as HTMLImageElement).style.display = 'none'
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Labeled Diagram — from Wikimedia */}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="imageUrl">
+            Labeled Diagram URL{' '}
+            <span className="text-muted-foreground font-normal">(from textbook / Wikimedia)</span>
+          </Label>
           <Input
             id="imageUrl"
             value={form.imageUrl}
             onChange={(e) => set('imageUrl')(e.target.value)}
-            placeholder="Paste a URL to a labeled diagram or your specimen photo"
+            placeholder="Paste a URL to a labeled anatomical diagram"
             type="url"
           />
           <p className="text-xs text-muted-foreground">
-            You can get free labeled diagrams from{' '}
+            Go to{' '}
             <a
               href="https://commons.wikimedia.org"
               target="_blank"
               rel="noopener noreferrer"
               className="underline underline-offset-2 hover:text-foreground"
             >
-              Wikimedia Commons
+              commons.wikimedia.org
             </a>
-            {' '}— search the organ name, open the image, right-click and copy image address.
+            {' '}— search the organ name (e.g. &ldquo;heart anatomy diagram&rdquo;), open the image, right-click and copy image address. Paste it here.
           </p>
           {form.imageUrl && (
             <div className="rounded-lg overflow-hidden border border-border bg-muted h-40 mt-1">

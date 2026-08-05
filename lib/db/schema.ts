@@ -68,7 +68,8 @@ export const specimens = pgTable('specimens', {
   description: text('description').notNull(),
   functions: text('functions').notNull(),
   clinicalRelevance: text('clinicalRelevance').notNull(),
-  imageUrl: text('imageUrl'),
+  imageUrl: text('imageUrl'),           // labeled diagram (e.g. from Wikimedia)
+  specimenPhotoUrl: text('specimenPhotoUrl'), // your actual jar/specimen photo
   additionalNotes: text('additionalNotes'),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   updatedAt: timestamp('updatedAt').notNull().defaultNow(),

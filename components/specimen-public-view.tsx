@@ -111,17 +111,34 @@ export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
         </div>
 
         {/* ── Images ── */}
-        {specimen.imageUrl && (
-          <div className="rounded-xl overflow-hidden border border-border bg-muted">
-            <img
-              src={specimen.imageUrl}
-              alt={`Labeled anatomical diagram of ${specimen.name}`}
-              className="w-full object-contain max-h-80"
-              crossOrigin="anonymous"
-            />
-            <p className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border">
-              Labeled anatomical diagram — {specimen.name}
-            </p>
+        {(specimen.specimenPhotoUrl || specimen.imageUrl) && (
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {specimen.specimenPhotoUrl && (
+              <div className="flex-1 rounded-xl overflow-hidden border border-border bg-muted flex flex-col">
+                <img
+                  src={specimen.specimenPhotoUrl}
+                  alt={`Preserved specimen of ${specimen.name} in jar`}
+                  className="w-full object-cover max-h-64"
+                  crossOrigin="anonymous"
+                />
+                <p className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border">
+                  Museum specimen — {specimen.name}
+                </p>
+              </div>
+            )}
+            {specimen.imageUrl && (
+              <div className="flex-1 rounded-xl overflow-hidden border border-border bg-muted flex flex-col">
+                <img
+                  src={specimen.imageUrl}
+                  alt={`Labeled anatomical diagram of ${specimen.name}`}
+                  className="w-full object-contain max-h-64"
+                  crossOrigin="anonymous"
+                />
+                <p className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border">
+                  Labeled diagram — {specimen.name}
+                </p>
+              </div>
+            )}
           </div>
         )}
 

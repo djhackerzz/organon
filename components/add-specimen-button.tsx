@@ -22,11 +22,13 @@ export function AddSpecimenButton() {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl flex flex-col max-h-[90vh] p-0 gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
             <DialogTitle>Add New Specimen</DialogTitle>
           </DialogHeader>
-          <SpecimenForm onSuccess={() => setOpen(false)} />
+          <div className="overflow-y-auto px-6 pb-6 flex-1">
+            <SpecimenForm onSuccess={() => setOpen(false)} />
+          </div>
         </DialogContent>
       </Dialog>
     </>

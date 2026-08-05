@@ -56,6 +56,7 @@ export async function createSpecimen(data: {
   functions: string
   clinicalRelevance: string
   imageUrl?: string
+  specimenPhotoUrl?: string
   additionalNotes?: string
 }) {
   const userId = await getUserId()
@@ -86,6 +87,7 @@ export async function updateSpecimen(
     functions?: string
     clinicalRelevance?: string
     imageUrl?: string
+    specimenPhotoUrl?: string
     additionalNotes?: string
   }
 ) {
