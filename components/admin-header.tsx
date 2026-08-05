@@ -1,10 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { signOut } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
-import { LogOut, FlaskConical, QrCode } from 'lucide-react'
+import { LogOut, FlaskConical } from 'lucide-react'
 
 interface AdminHeaderProps {
   userName: string
@@ -32,12 +31,6 @@ export function AdminHeader({ userName }: AdminHeaderProps) {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/label-maker">
-            <Button variant="outline" size="sm" className="gap-1.5 hidden sm:flex">
-              <QrCode className="h-3.5 w-3.5" aria-hidden="true" />
-              QR Label Maker
-            </Button>
-          </Link>
           <span className="text-sm text-muted-foreground hidden sm:inline pl-1">
             {userName}
           </span>
