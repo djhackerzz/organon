@@ -145,7 +145,7 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
             <Label htmlFor="systemCategory">Body System *</Label>
             <Select
               value={form.systemCategory}
-              onValueChange={set('systemCategory')}
+              onValueChange={(value) => set('systemCategory')(value ?? '')}
               required
             >
               <SelectTrigger id="systemCategory">
@@ -173,7 +173,7 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
             <Label htmlFor="preservationMethod">Method *</Label>
             <Select
               value={form.preservationMethod}
-              onValueChange={set('preservationMethod')}
+              onValueChange={(value) => set('preservationMethod')(value ?? '')}
               required
             >
               <SelectTrigger id="preservationMethod">
@@ -217,7 +217,7 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="flex flex-col gap-2">
             <Label htmlFor="sex">Sex</Label>
-            <Select value={form.sex} onValueChange={set('sex')}>
+            <Select value={form.sex} onValueChange={(value) => set('sex')(value ?? '')}>
               <SelectTrigger id="sex">
                 <SelectValue placeholder="Unknown" />
               </SelectTrigger>
