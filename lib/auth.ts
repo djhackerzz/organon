@@ -17,6 +17,8 @@ export const auth = betterAuth({
   trustedOrigins: [
     'http://localhost:3000',
     'https://*.vercel.app',
+    // Custom domain support — add your published domain here if you rename it
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
     ...(process.env.V0_RUNTIME_URL ? [process.env.V0_RUNTIME_URL] : []),
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
     ...(process.env.VERCEL_BRANCH_URL
