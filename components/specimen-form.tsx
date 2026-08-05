@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { createSpecimen, updateSpecimen } from '@/app/actions/specimens'
 import type { Specimen } from '@/lib/db/schema'
+import { ImageUploadField } from '@/components/image-upload-field'
 
 const BODY_SYSTEMS = [
   'Cardiovascular System',
@@ -295,82 +296,32 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
         </div>
 
         {/* Specimen Photo — taken by you */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="specimenPhotoUrl">
-            Specimen Photo URL{' '}
-            <span className="text-muted-foreground font-normal">(your actual jar photo)</span>
-          </Label>
-          <Input
-            id="specimenPhotoUrl"
-            value={form.specimenPhotoUrl}
-            onChange={(e) => set('specimenPhotoUrl')(e.target.value)}
-            placeholder="Paste the URL of your jar/specimen photo"
-            type="url"
-          />
-          <p className="text-xs text-muted-foreground">
-            Take a photo of the jar with any phone. Upload it to{' '}
-            <a
-              href="https://imgur.com/upload"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              imgur.com/upload
-            </a>
-            {' '}(free, no account needed) — then right-click the uploaded image and copy the image address. Paste it here.
-          </p>
-          {form.specimenPhotoUrl && (
-            <div className="rounded-lg overflow-hidden border border-border bg-muted h-40 mt-1">
-              <img
-                src={form.specimenPhotoUrl}
-                alt="Specimen photo preview"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  ;(e.target as HTMLImageElement).style.display = 'none'
-                }}
-              />
-            </div>
-          )}
-        </div>
+        <ImageUploadField
+          id="specimenPhotoUrl"
+          label={
+            <>
+              Specimen Photo{' '}
+              <span className="text-muted-foreground font-normal">(your actual jar photo)</span>
+            </>
+          }
+          value={form.specimenPhotoUrl}
+          onChange={set('specimenPhotoUrl')}
+          hint="Take a photo of the jar with any phone and upload it directly from your device."
+        />
 
-        {/* Labeled Diagram — from Wikimedia */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="imageUrl">
-            Labeled Diagram URL{' '}
-            <span className="text-muted-foreground font-normal">(from textbook / Wikimedia)</span>
-          </Label>
-          <Input
-            id="imageUrl"
-            value={form.imageUrl}
-            onChange={(e) => set('imageUrl')(e.target.value)}
-            placeholder="Paste a URL to a labeled anatomical diagram"
-            type="url"
-          />
-          <p className="text-xs text-muted-foreground">
-            Go to{' '}
-            <a
-              href="https://commons.wikimedia.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              commons.wikimedia.org
-            </a>
-            {' '}— search the organ name (e.g. &ldquo;heart anatomy diagram&rdquo;), open the image, right-click and copy image address. Paste it here.
-          </p>
-          {form.imageUrl && (
-            <div className="rounded-lg overflow-hidden border border-border bg-muted h-40 mt-1">
-              <img
-                src={form.imageUrl}
-                alt="Diagram preview"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  ;(e.target as HTMLImageElement).style.display = 'none'
-                }}
-              />
-            </div>
-          )}
-        </div>
+        {/* Labeled Diagram — from textbook / Wikimedia */}
+        <ImageUploadField
+          id="imageUrl"
+          label={
+            <>
+              Labeled Diagram{' '}
+              <span className="text-muted-foreground font-normal">(from textbook / Wikimedia)</span>
+            </>
+          }
+          value={form.imageUrl}
+          onChange={set('imageUrl')}
+          hint="Upload a labeled anatomical diagram saved from your textbook or downloaded from Wikimedia Commons."
+        />
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="additionalNotes">Additional Notes</Label>
