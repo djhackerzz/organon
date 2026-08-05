@@ -1,24 +1,68 @@
 import { Badge } from '@/components/ui/badge'
 import type { Specimen } from '@/lib/db/schema'
-import { FlaskConical } from 'lucide-react'
+import { FlaskConical, BookOpen, Stethoscope, Info } from 'lucide-react'
 
 interface SpecimenPublicViewProps {
   specimen: Specimen
 }
 
-function Section({
+function BulletContent({ text }: { text: string }) {
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+
+  return (
+    <ul className="flex flex-col gap-2" role="list">
+      {lines.map((line, i) => {
+        const clean = line.replace(/^[•\-\*]\s*/, '')
+        return (
+          <li key={i} className="flex gap-2.5 items-start text-sm leading-relaxed">
+            <span
+              className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0"
+              aria-hidden="true"
+            />
+            <span>{clean}</span>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function SectionCard({
+  icon: Icon,
   title,
+  accent,
   children,
 }: {
+  icon: React.ElementType
   title: string
+  accent?: boolean
   children: React.ReactNode
 }) {
   return (
-    <section>
-      <h2 className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">
-        {title}
-      </h2>
-      <div className="text-sm text-foreground leading-relaxed">{children}</div>
+    <section
+      className={`rounded-xl border p-5 flex flex-col gap-3 ${
+        accent
+          ? 'border-primary/30 bg-primary/5'
+          : 'border-border bg-card'
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <Icon
+          className={`h-4 w-4 shrink-0 ${accent ? 'text-primary' : 'text-muted-foreground'}`}
+          aria-hidden="true"
+        />
+        <h2
+          className={`text-xs font-semibold uppercase tracking-widest ${
+            accent ? 'text-primary' : 'text-muted-foreground'
+          }`}
+        >
+          {title}
+        </h2>
+      </div>
+      {children}
     </section>
   )
 }
@@ -26,8 +70,8 @@ function Section({
 function InfoRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null
   return (
-    <div className="flex gap-3">
-      <span className="text-muted-foreground w-32 shrink-0">{label}</span>
+    <div className="flex gap-3 text-sm">
+      <span className="text-muted-foreground w-28 shrink-0">{label}</span>
       <span className="text-foreground">{value}</span>
     </div>
   )
@@ -37,36 +81,28 @@ export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
   return (
     <div className="min-h-svh bg-background">
       {/* Top bar */}
-      <header className="border-b border-border bg-card">
+      <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm">
         <div className="max-w-2xl mx-auto px-4 h-12 flex items-center gap-2">
-          <FlaskConical className="h-4 w-4 text-primary" aria-hidden="true" />
-          <span className="text-sm font-medium text-foreground">
-            Department of Anatomy — Museum Catalog
+          <FlaskConical className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+          <span className="text-sm font-medium text-foreground truncate">
+            Anatomy Museum — Specimen Catalog
+          </span>
+          <span className="ml-auto font-mono text-xs text-muted-foreground shrink-0">
+            {specimen.specimenNumber}
           </span>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-8">
-        {/* Hero */}
-        {specimen.imageUrl && (
-          <div className="rounded-xl overflow-hidden h-56 bg-muted">
-            <img
-              src={specimen.imageUrl}
-              alt={`Photo of ${specimen.name} specimen`}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+      <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-5">
 
-        {/* Title block */}
-        <div className="flex flex-col gap-2">
+        {/* ── Title block ── */}
+        <div className="flex flex-col gap-2 pt-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary">{specimen.systemCategory}</Badge>
-            <span className="text-xs font-mono text-muted-foreground">
-              {specimen.specimenNumber}
-            </span>
+            <Badge variant="secondary" className="text-xs">
+              {specimen.systemCategory}
+            </Badge>
           </div>
-          <h1 className="text-3xl font-bold text-foreground text-balance">
+          <h1 className="text-3xl font-bold text-foreground text-balance leading-tight">
             {specimen.name}
           </h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
@@ -74,54 +110,70 @@ export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
           </p>
         </div>
 
-        {/* Divider */}
-        <hr className="border-border" />
+        {/* ── Images ── */}
+        {specimen.imageUrl && (
+          <div className="rounded-xl overflow-hidden border border-border bg-muted">
+            <img
+              src={specimen.imageUrl}
+              alt={`Labeled anatomical diagram of ${specimen.name}`}
+              className="w-full object-contain max-h-80"
+              crossOrigin="anonymous"
+            />
+            <p className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border">
+              Labeled anatomical diagram — {specimen.name}
+            </p>
+          </div>
+        )}
 
-        {/* Functions */}
-        <Section title="Physiological Functions">
-          <p className="whitespace-pre-wrap">{specimen.functions}</p>
-        </Section>
+        {/* ── Functions ── */}
+        <SectionCard icon={BookOpen} title="Physiological Functions">
+          <BulletContent text={specimen.functions} />
+        </SectionCard>
 
-        {/* Clinical Relevance */}
-        <div className="bg-accent/40 border border-accent rounded-xl p-5">
-          <Section title="Clinical Relevance">
-            <p className="whitespace-pre-wrap">{specimen.clinicalRelevance}</p>
-          </Section>
-        </div>
+        {/* ── Clinical Relevance ── */}
+        <SectionCard icon={Stethoscope} title="Clinical Relevance" accent>
+          <BulletContent text={specimen.clinicalRelevance} />
+        </SectionCard>
 
-        {/* Specimen Details */}
-        <Section title="Specimen Details">
-          <div className="flex flex-col gap-2 text-sm">
+        {/* ── Specimen Details ── */}
+        <SectionCard icon={Info} title="Specimen Details">
+          <div className="flex flex-col gap-2">
             <InfoRow label="Organ" value={specimen.organ} />
             <InfoRow label="Body System" value={specimen.systemCategory} />
+            <InfoRow label="Specimen No." value={specimen.specimenNumber} />
             <InfoRow label="Preservation" value={specimen.preservationMethod} />
             <InfoRow label="Jar Size" value={specimen.jarSize} />
-            <InfoRow label="Collection" value={specimen.collectionDate} />
+            <InfoRow label="Collected" value={specimen.collectionDate} />
           </div>
-        </Section>
+        </SectionCard>
 
-        {/* Donor info (if available) */}
+        {/* ── Donor info (if available) ── */}
         {(specimen.sex || specimen.age || specimen.donorInfo) && (
-          <Section title="Donor Information">
-            <div className="flex flex-col gap-2 text-sm">
+          <SectionCard icon={Info} title="Donor Information (Anonymized)">
+            <div className="flex flex-col gap-2">
               <InfoRow label="Sex" value={specimen.sex} />
               <InfoRow label="Age at death" value={specimen.age} />
               <InfoRow label="Notes" value={specimen.donorInfo} />
             </div>
-          </Section>
+          </SectionCard>
         )}
 
-        {/* Additional Notes */}
+        {/* ── Additional Notes ── */}
         {specimen.additionalNotes && (
-          <Section title="Additional Notes">
-            <p className="whitespace-pre-wrap">{specimen.additionalNotes}</p>
-          </Section>
+          <SectionCard icon={BookOpen} title="Additional Notes">
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+              {specimen.additionalNotes}
+            </p>
+          </SectionCard>
         )}
 
-        {/* Footer */}
-        <footer className="border-t border-border pt-6 text-xs text-muted-foreground text-center">
-          <p>Department of Anatomy — Specimen Catalog</p>
-          <p className="mt-1 font-mono">{specimen.specimenNumber}</p>
+        {/* ── Footer ── */}
+        <footer className="border-t border-border pt-5 text-xs text-muted-foreground text-center flex flex-col gap-1 pb-8">
+          <p>Department of Anatomy — Museum Specimen Catalog</p>
+          <p className="font-mono">{specimen.specimenNumber}</p>
+          <p className="mt-1">
+            Diagram sourced from Wikimedia Commons (CC licensed) where applicable.
+          </p>
         </footer>
       </main>
     </div>
