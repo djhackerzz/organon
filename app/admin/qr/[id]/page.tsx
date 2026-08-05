@@ -21,10 +21,15 @@ export default async function QRPage({
   const specimen = await getSpecimenById(id)
   if (!specimen) notFound()
 
+  // Always encode the QR with the real published app URL, not the v0 preview/chat host.
+  // BETTER_AUTH_URL is set to the custom production domain in deployment settings.
+  const configuredBaseUrl = process.env.BETTER_AUTH_URL?.replace(/\/$/, '')
   const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host') ?? 'localhost:3000'
   const forwardedProto = requestHeaders.get('x-forwarded-proto')
   const protocol = forwardedProto ?? (host.includes('localhost') ? 'http' : 'https')
-  const publicUrl = `${protocol}://${host}/specimen/${encodeURIComponent(id)}`
+  const runtimeBaseUrl = `${protocol}://${host}`
+  const publicBaseUrl = configuredBaseUrl || runtimeBaseUrl
+  const publicUrl = `${publicBaseUrl}/specimen/${encodeURIComponent(id)}`
 
   return (
     <div className="min-h-svh bg-background">
