@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { createSpecimen, updateSpecimen } from '@/app/actions/specimens'
 import type { Specimen } from '@/lib/db/schema'
+import { ImageUploadField } from '@/components/image-upload-field'
 
 const BODY_SYSTEMS = [
   'Cardiovascular System',
@@ -50,7 +51,6 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [uploading, setUploading] = useState<'specimen' | 'diagram' | null>(null)
 
   const [form, setForm] = useState({
     specimenNumber: specimen?.specimenNumber ?? '',
@@ -73,25 +73,6 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
 
   const set = (key: keyof typeof form) => (value: string) =>
     setForm((f) => ({ ...f, [key]: value }))
-
-  const handleUpload = async (kind: 'specimen' | 'diagram', file: File) => {
-    setError(null)
-    setUploading(kind)
-    try {
-      const body = new FormData()
-      body.append('file', file)
-      const response = await fetch('/api/upload-image', { method: 'POST', body })
-      const result = (await response.json()) as { url?: string; error?: string }
-      if (!response.ok || !result.url) {
-        throw new Error(result.error || 'Upload failed. Please try again.')
-      }
-      set(kind === 'specimen' ? 'specimenPhotoUrl' : 'imageUrl')(result.url)
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Upload failed. Please try again.')
-    } finally {
-      setUploading(null)
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -315,96 +296,32 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
         </div>
 
         {/* Specimen Photo — taken by you */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="specimenPhotoFile">
-            Specimen Photo{' '}
-            <span className="text-muted-foreground font-normal">(your actual jar photo)</span>
-          </Label>
-          <Input
-            id="specimenPhotoFile"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            disabled={uploading !== null}
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) void handleUpload('specimen', file)
-              e.currentTarget.value = ''
-            }}
-            className="cursor-pointer file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1 file:text-primary-foreground"
-          />
-          <p className="text-xs text-muted-foreground">
-            Choose a JPG, PNG, or WebP image from your device. Maximum size: 10 MB.
-            {uploading === 'specimen' ? ' Uploading…' : ''}
-          </p>
-          <Label htmlFor="specimenPhotoUrl" className="text-xs text-muted-foreground font-normal">
-            Or paste an image URL
-          </Label>
-          <Input
-            id="specimenPhotoUrl"
-            value={form.specimenPhotoUrl}
-            onChange={(e) => set('specimenPhotoUrl')(e.target.value)}
-            placeholder="https://…"
-            type="url"
-          />
-          {form.specimenPhotoUrl && (
-            <div className="rounded-lg overflow-hidden border border-border bg-muted h-40 mt-1">
-              <img
-                src={form.specimenPhotoUrl}
-                alt="Specimen photo preview"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  ;(e.target as HTMLImageElement).style.display = 'none'
-                }}
-              />
-            </div>
-          )}
-        </div>
+        <ImageUploadField
+          id="specimenPhotoUrl"
+          label={
+            <>
+              Specimen Photo{' '}
+              <span className="text-muted-foreground font-normal">(your actual jar photo)</span>
+            </>
+          }
+          value={form.specimenPhotoUrl}
+          onChange={set('specimenPhotoUrl')}
+          hint="Take a photo of the jar with any phone and upload it directly from your device."
+        />
 
-        {/* Labeled Diagram */}
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="diagramFile">
-            Labeled Diagram{' '}
-            <span className="text-muted-foreground font-normal">(from textbook / Wikimedia)</span>
-          </Label>
-          <Input
-            id="diagramFile"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            disabled={uploading !== null}
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) void handleUpload('diagram', file)
-              e.currentTarget.value = ''
-            }}
-            className="cursor-pointer file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1 file:text-primary-foreground"
-          />
-          <p className="text-xs text-muted-foreground">
-            Choose a diagram from your device. JPG, PNG, or WebP only, maximum 10 MB.
-            {uploading === 'diagram' ? ' Uploading…' : ''}
-          </p>
-          <Label htmlFor="imageUrl" className="text-xs text-muted-foreground font-normal">
-            Or paste an image URL
-          </Label>
-          <Input
-            id="imageUrl"
-            value={form.imageUrl}
-            onChange={(e) => set('imageUrl')(e.target.value)}
-            placeholder="https://…"
-            type="url"
-          />
-          {form.imageUrl && (
-            <div className="rounded-lg overflow-hidden border border-border bg-muted h-40 mt-1">
-              <img
-                src={form.imageUrl}
-                alt="Diagram preview"
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  ;(e.target as HTMLImageElement).style.display = 'none'
-                }}
-              />
-            </div>
-          )}
-        </div>
+        {/* Labeled Diagram — from textbook / Wikimedia */}
+        <ImageUploadField
+          id="imageUrl"
+          label={
+            <>
+              Labeled Diagram{' '}
+              <span className="text-muted-foreground font-normal">(from textbook / Wikimedia)</span>
+            </>
+          }
+          value={form.imageUrl}
+          onChange={set('imageUrl')}
+          hint="Upload a labeled anatomical diagram saved from your textbook or downloaded from Wikimedia Commons."
+        />
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="additionalNotes">Additional Notes</Label>
