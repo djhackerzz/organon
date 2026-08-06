@@ -50,6 +50,7 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState<'specimen' | 'diagram' | null>(null)
 
   const [form, setForm] = useState({
     specimenNumber: specimen?.specimenNumber ?? '',
@@ -72,6 +73,25 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
 
   const set = (key: keyof typeof form) => (value: string) =>
     setForm((f) => ({ ...f, [key]: value }))
+
+  const handleUpload = async (kind: 'specimen' | 'diagram', file: File) => {
+    setError(null)
+    setUploading(kind)
+    try {
+      const body = new FormData()
+      body.append('file', file)
+      const response = await fetch('/api/upload-image', { method: 'POST', body })
+      const result = (await response.json()) as { url?: string; error?: string }
+      if (!response.ok || !result.url) {
+        throw new Error(result.error || 'Upload failed. Please try again.')
+      }
+      set(kind === 'specimen' ? 'specimenPhotoUrl' : 'imageUrl')(result.url)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Upload failed. Please try again.')
+    } finally {
+      setUploading(null)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -296,29 +316,36 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
 
         {/* Specimen Photo — taken by you */}
         <div className="flex flex-col gap-2">
-          <Label htmlFor="specimenPhotoUrl">
-            Specimen Photo URL{' '}
+          <Label htmlFor="specimenPhotoFile">
+            Specimen Photo{' '}
             <span className="text-muted-foreground font-normal">(your actual jar photo)</span>
+          </Label>
+          <Input
+            id="specimenPhotoFile"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={uploading !== null}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) void handleUpload('specimen', file)
+              e.currentTarget.value = ''
+            }}
+            className="cursor-pointer file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1 file:text-primary-foreground"
+          />
+          <p className="text-xs text-muted-foreground">
+            Choose a JPG, PNG, or WebP image from your device. Maximum size: 10 MB.
+            {uploading === 'specimen' ? ' Uploading…' : ''}
+          </p>
+          <Label htmlFor="specimenPhotoUrl" className="text-xs text-muted-foreground font-normal">
+            Or paste an image URL
           </Label>
           <Input
             id="specimenPhotoUrl"
             value={form.specimenPhotoUrl}
             onChange={(e) => set('specimenPhotoUrl')(e.target.value)}
-            placeholder="Paste the URL of your jar/specimen photo"
+            placeholder="https://…"
             type="url"
           />
-          <p className="text-xs text-muted-foreground">
-            Take a photo of the jar with any phone. Upload it to{' '}
-            <a
-              href="https://imgur.com/upload"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              imgur.com/upload
-            </a>
-            {' '}(free, no account needed) — then right-click the uploaded image and copy the image address. Paste it here.
-          </p>
           {form.specimenPhotoUrl && (
             <div className="rounded-lg overflow-hidden border border-border bg-muted h-40 mt-1">
               <img
@@ -333,31 +360,38 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
           )}
         </div>
 
-        {/* Labeled Diagram — from Wikimedia */}
+        {/* Labeled Diagram */}
         <div className="flex flex-col gap-2">
-          <Label htmlFor="imageUrl">
-            Labeled Diagram URL{' '}
+          <Label htmlFor="diagramFile">
+            Labeled Diagram{' '}
             <span className="text-muted-foreground font-normal">(from textbook / Wikimedia)</span>
+          </Label>
+          <Input
+            id="diagramFile"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={uploading !== null}
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) void handleUpload('diagram', file)
+              e.currentTarget.value = ''
+            }}
+            className="cursor-pointer file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1 file:text-primary-foreground"
+          />
+          <p className="text-xs text-muted-foreground">
+            Choose a diagram from your device. JPG, PNG, or WebP only, maximum 10 MB.
+            {uploading === 'diagram' ? ' Uploading…' : ''}
+          </p>
+          <Label htmlFor="imageUrl" className="text-xs text-muted-foreground font-normal">
+            Or paste an image URL
           </Label>
           <Input
             id="imageUrl"
             value={form.imageUrl}
             onChange={(e) => set('imageUrl')(e.target.value)}
-            placeholder="Paste a URL to a labeled anatomical diagram"
+            placeholder="https://…"
             type="url"
           />
-          <p className="text-xs text-muted-foreground">
-            Go to{' '}
-            <a
-              href="https://commons.wikimedia.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-foreground"
-            >
-              commons.wikimedia.org
-            </a>
-            {' '}— search the organ name (e.g. &ldquo;heart anatomy diagram&rdquo;), open the image, right-click and copy image address. Paste it here.
-          </p>
           {form.imageUrl && (
             <div className="rounded-lg overflow-hidden border border-border bg-muted h-40 mt-1">
               <img
