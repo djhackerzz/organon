@@ -24,17 +24,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be under 10 MB' }, { status: 400 })
     }
 
-    // The connected Blob store is private, so upload with matching private access.
-    // The delivery route below exposes only the intended specimen image path.
+    // The connected replacement store is public so students can view images
+    // directly from the public specimen page without signing in.
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-120)
     const blob = await put(`specimen-images/${crypto.randomUUID()}-${safeName}`, file, {
-      access: 'private',
+      access: 'public',
       addRandomSuffix: false,
     })
 
-    return NextResponse.json({
-      url: `${request.nextUrl.origin}/api/image?pathname=${encodeURIComponent(blob.pathname)}`,
-    })
+    return NextResponse.json({ url: blob.url })
   } catch (error) {
     console.error('[v0] Upload error:', error)
     return NextResponse.json({ error: 'Upload failed. Please check Blob storage configuration.' }, { status: 500 })
