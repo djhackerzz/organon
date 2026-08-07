@@ -75,5 +75,25 @@ export const specimens = pgTable('specimens', {
   updatedAt: timestamp('updatedAt').notNull().defaultNow(),
 })
 
+export const siteSettings = pgTable('site_settings', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull().unique(),
+  functionsHeading: text('functionsHeading').notNull().default('Physiological Functions'),
+  clinicalRelevanceHeading: text('clinicalRelevanceHeading').notNull().default('Clinical Relevance'),
+  specimenDetailsHeading: text('specimenDetailsHeading').notNull().default('Specimen Details'),
+  donorInformationHeading: text('donorInformationHeading').notNull().default('Donor Information (Anonymized)'),
+  additionalNotesHeading: text('additionalNotesHeading').notNull().default('Additional Notes'),
+  showImages: boolean('showImages').notNull().default(true),
+  showFunctions: boolean('showFunctions').notNull().default(true),
+  showClinicalRelevance: boolean('showClinicalRelevance').notNull().default(true),
+  showSpecimenDetails: boolean('showSpecimenDetails').notNull().default(true),
+  showDonorInformation: boolean('showDonorInformation').notNull().default(true),
+  showAdditionalNotes: boolean('showAdditionalNotes').notNull().default(true),
+  showFooter: boolean('showFooter').notNull().default(true),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+})
+
 export type Specimen = typeof specimens.$inferSelect
 export type NewSpecimen = typeof specimens.$inferInsert
+export type SiteSettings = typeof siteSettings.$inferSelect

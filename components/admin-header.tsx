@@ -1,9 +1,10 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
-import { LogOut, FlaskConical } from 'lucide-react'
+import { LogOut, FlaskConical, Settings } from 'lucide-react'
 
 interface AdminHeaderProps {
   userName: string
@@ -34,6 +35,15 @@ export function AdminHeader({ userName }: AdminHeaderProps) {
           <span className="text-sm text-muted-foreground hidden sm:inline pl-1">
             {userName}
           </span>
+          <Button
+            render={<Link href="/admin/settings" />}
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground"
+            aria-label="Settings"
+          >
+            <Settings className="h-4 w-4" aria-hidden="true" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
