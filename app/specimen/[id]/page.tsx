@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getSpecimenById } from '@/app/actions/specimens'
+import { getPublicSiteSettings } from '@/app/actions/settings'
 import { SpecimenPublicView } from '@/components/specimen-public-view'
 import type { Metadata } from 'next'
 
@@ -19,7 +20,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SpecimenPublicPage({ params }: Props) {
   const { id } = await params
-  const specimen = await getSpecimenById(id)
+  const [specimen, settings] = await Promise.all([
+    getSpecimenById(id),
+    getPublicSiteSettings(),
+  ])
   if (!specimen) notFound()
-  return <SpecimenPublicView specimen={specimen} />
+  return <SpecimenPublicView specimen={specimen} settings={settings} />
 }

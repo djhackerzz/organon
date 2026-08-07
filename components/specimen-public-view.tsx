@@ -8,7 +8,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type { Specimen } from '@/lib/db/schema'
+import type { SiteSettings, Specimen } from '@/lib/db/schema'
 import {
   FlaskConical,
   BookOpen,
@@ -20,6 +20,7 @@ import {
 
 interface SpecimenPublicViewProps {
   specimen: Specimen
+  settings: SiteSettings
 }
 
 function BulletContent({ text }: { text: string }) {
@@ -266,7 +267,7 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
   )
 }
 
-export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
+export function SpecimenPublicView({ specimen, settings }: SpecimenPublicViewProps) {
   return (
     <div className="min-h-svh bg-background">
       {/* Top bar */}
@@ -300,7 +301,7 @@ export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
         </div>
 
         {/* ── Images ── */}
-        {(specimen.specimenPhotoUrl || specimen.imageUrl) && (
+        {settings.showImages && (specimen.specimenPhotoUrl || specimen.imageUrl) && (
           <ImageGallery
             images={[
               ...(specimen.specimenPhotoUrl
@@ -327,31 +328,33 @@ export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
           />
         )}
 
-        {/* ── Functions ── */}
-        <SectionCard icon={BookOpen} title="Physiological Functions">
-          <BulletContent text={specimen.functions} />
-        </SectionCard>
+        {settings.showFunctions && (
+          <SectionCard icon={BookOpen} title={settings.functionsHeading}>
+            <BulletContent text={specimen.functions} />
+          </SectionCard>
+        )}
 
-        {/* ── Clinical Relevance ── */}
-        <SectionCard icon={Stethoscope} title="Clinical Relevance" accent>
-          <BulletContent text={specimen.clinicalRelevance} />
-        </SectionCard>
+        {settings.showClinicalRelevance && (
+          <SectionCard icon={Stethoscope} title={settings.clinicalRelevanceHeading} accent>
+            <BulletContent text={specimen.clinicalRelevance} />
+          </SectionCard>
+        )}
 
-        {/* ── Specimen Details ── */}
-        <SectionCard icon={Info} title="Specimen Details">
-          <div className="flex flex-col gap-2">
-            <InfoRow label="Organ" value={specimen.organ} />
-            <InfoRow label="Body System" value={specimen.systemCategory} />
-            <InfoRow label="Specimen No." value={specimen.specimenNumber} />
-            <InfoRow label="Preservation" value={specimen.preservationMethod} />
-            <InfoRow label="Jar Size" value={specimen.jarSize} />
-            <InfoRow label="Collected" value={specimen.collectionDate} />
-          </div>
-        </SectionCard>
+        {settings.showSpecimenDetails && (
+          <SectionCard icon={Info} title={settings.specimenDetailsHeading}>
+            <div className="flex flex-col gap-2">
+              <InfoRow label="Organ" value={specimen.organ} />
+              <InfoRow label="Body System" value={specimen.systemCategory} />
+              <InfoRow label="Specimen No." value={specimen.specimenNumber} />
+              <InfoRow label="Preservation" value={specimen.preservationMethod} />
+              <InfoRow label="Jar Size" value={specimen.jarSize} />
+              <InfoRow label="Collected" value={specimen.collectionDate} />
+            </div>
+          </SectionCard>
+        )}
 
-        {/* ── Donor info (if available) ── */}
-        {(specimen.sex || specimen.age || specimen.donorInfo) && (
-          <SectionCard icon={Info} title="Donor Information (Anonymized)">
+        {settings.showDonorInformation && (specimen.sex || specimen.age || specimen.donorInfo) && (
+          <SectionCard icon={Info} title={settings.donorInformationHeading}>
             <div className="flex flex-col gap-2">
               <InfoRow label="Sex" value={specimen.sex} />
               <InfoRow label="Age at death" value={specimen.age} />
@@ -360,23 +363,23 @@ export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
           </SectionCard>
         )}
 
-        {/* ── Additional Notes ── */}
-        {specimen.additionalNotes && (
-          <SectionCard icon={BookOpen} title="Additional Notes">
+        {settings.showAdditionalNotes && specimen.additionalNotes && (
+          <SectionCard icon={BookOpen} title={settings.additionalNotesHeading}>
             <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
               {specimen.additionalNotes}
             </p>
           </SectionCard>
         )}
 
-        {/* ── Footer ── */}
-        <footer className="border-t border-border pt-5 text-xs text-muted-foreground text-center flex flex-col gap-1 pb-8">
+        {settings.showFooter && (
+          <footer className="border-t border-border pt-5 text-xs text-muted-foreground text-center flex flex-col gap-1 pb-8">
           <p>Department of Anatomy — Museum Specimen Catalog</p>
           <p className="font-mono">{specimen.specimenNumber}</p>
           <p className="mt-1">
             Diagram sourced from Wikimedia Commons (CC licensed) where applicable.
           </p>
-        </footer>
+          </footer>
+        )}
       </main>
     </div>
   )
