@@ -1,6 +1,24 @@
+'use client'
+
+import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import type { Specimen } from '@/lib/db/schema'
-import { FlaskConical, BookOpen, Stethoscope, Info } from 'lucide-react'
+import {
+  FlaskConical,
+  BookOpen,
+  Stethoscope,
+  Info,
+  Minus,
+  Plus,
+  RotateCcw,
+  ZoomIn,
+} from 'lucide-react'
 
 interface SpecimenPublicViewProps {
   specimen: Specimen
@@ -77,6 +95,136 @@ function InfoRow({ label, value }: { label: string; value?: string | null }) {
   )
 }
 
+type GalleryImage = {
+  src: string
+  alt: string
+  caption: string
+  fit: 'cover' | 'contain'
+}
+
+function ImageGallery({ images }: { images: GalleryImage[] }) {
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null)
+  const [zoom, setZoom] = useState(1)
+
+  const openImage = (image: GalleryImage) => {
+    setSelectedImage(image)
+    setZoom(1)
+  }
+
+  const closeImage = () => {
+    setSelectedImage(null)
+    setZoom(1)
+  }
+
+  const adjustZoom = (amount: number) => {
+    setZoom((currentZoom) =>
+      Math.min(3, Math.max(1, Number((currentZoom + amount).toFixed(1))))
+    )
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        {images.map((image) => (
+          <button
+            key={image.src}
+            type="button"
+            onClick={() => openImage(image)}
+            className="group flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-muted text-left transition-colors hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            aria-label={`Open larger view: ${image.caption}`}
+          >
+            <span className="relative flex min-h-48 w-full items-center justify-center overflow-hidden">
+              <img
+                src={image.src}
+                alt={image.alt}
+                className={`w-full max-h-64 transition-transform duration-200 group-hover:scale-[1.02] ${image.fit === 'cover' ? 'object-cover' : 'object-contain'}`}
+                crossOrigin="anonymous"
+              />
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/0 text-foreground opacity-0 transition-opacity group-hover:bg-background/20 group-hover:opacity-100">
+                <span className="flex items-center gap-2 rounded-full bg-background/90 px-3 py-2 text-xs font-medium shadow-sm">
+                  <ZoomIn data-icon="inline-start" aria-hidden="true" />
+                  Zoom image
+                </span>
+              </span>
+            </span>
+            <span className="border-t border-border px-3 py-2 text-center text-xs text-muted-foreground">
+              {image.caption}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <Dialog
+        open={selectedImage !== null}
+        onOpenChange={(open) => {
+          if (!open) closeImage()
+        }}
+      >
+        <DialogContent
+          showCloseButton
+          className="max-w-5xl gap-3 overflow-hidden bg-background/95 p-3 sm:p-4"
+        >
+          <div className="flex items-center justify-between gap-3 pr-10">
+            <div className="min-w-0">
+              <DialogTitle className="truncate text-sm">
+                {selectedImage?.caption}
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                Use the controls to zoom this specimen image.
+              </DialogDescription>
+            </div>
+            <span className="shrink-0 font-mono text-xs text-muted-foreground">
+              {Math.round(zoom * 100)}%
+            </span>
+          </div>
+
+          <div className="flex max-h-[70vh] min-h-64 items-center justify-center overflow-auto rounded-lg bg-muted p-2 sm:min-h-[50vh]">
+            {selectedImage && (
+              <img
+                src={selectedImage.src}
+                alt={selectedImage.alt}
+                className="max-h-[65vh] max-w-full object-contain transition-transform duration-200"
+                style={{ transform: `scale(${zoom})` }}
+                crossOrigin="anonymous"
+              />
+            )}
+          </div>
+
+          <div className="flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => adjustZoom(-0.25)}
+              disabled={zoom <= 1}
+              className="inline-flex size-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+              aria-label="Zoom out"
+            >
+              <Minus aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom(1)}
+              disabled={zoom === 1}
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+            >
+              <RotateCcw data-icon="inline-start" aria-hidden="true" />
+              Reset
+            </button>
+            <button
+              type="button"
+              onClick={() => adjustZoom(0.25)}
+              disabled={zoom >= 3}
+              className="inline-flex size-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+              aria-label="Zoom in"
+            >
+              <Plus aria-hidden="true" />
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
 export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
   return (
     <div className="min-h-svh bg-background">
@@ -112,34 +260,30 @@ export function SpecimenPublicView({ specimen }: SpecimenPublicViewProps) {
 
         {/* ── Images ── */}
         {(specimen.specimenPhotoUrl || specimen.imageUrl) && (
-          <div className="flex flex-col gap-3 sm:flex-row">
-            {specimen.specimenPhotoUrl && (
-              <div className="flex-1 rounded-xl overflow-hidden border border-border bg-muted flex flex-col">
-                <img
-                  src={specimen.specimenPhotoUrl}
-                  alt={`Preserved specimen of ${specimen.name} in jar`}
-                  className="w-full object-cover max-h-64"
-                  crossOrigin="anonymous"
-                />
-                <p className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border">
-                  Museum specimen — {specimen.name}
-                </p>
-              </div>
-            )}
-            {specimen.imageUrl && (
-              <div className="flex-1 rounded-xl overflow-hidden border border-border bg-muted flex flex-col">
-                <img
-                  src={specimen.imageUrl}
-                  alt={`Labeled anatomical diagram of ${specimen.name}`}
-                  className="w-full object-contain max-h-64"
-                  crossOrigin="anonymous"
-                />
-                <p className="px-3 py-2 text-xs text-muted-foreground text-center border-t border-border">
-                  Labeled diagram — {specimen.name}
-                </p>
-              </div>
-            )}
-          </div>
+          <ImageGallery
+            images={[
+              ...(specimen.specimenPhotoUrl
+                ? [
+                    {
+                      src: specimen.specimenPhotoUrl,
+                      alt: `Preserved specimen of ${specimen.name} in jar`,
+                      caption: `Museum specimen — ${specimen.name}`,
+                      fit: 'cover' as const,
+                    },
+                  ]
+                : []),
+              ...(specimen.imageUrl
+                ? [
+                    {
+                      src: specimen.imageUrl,
+                      alt: `Labeled anatomical diagram of ${specimen.name}`,
+                      caption: `Labeled diagram — ${specimen.name}`,
+                      fit: 'contain' as const,
+                    },
+                  ]
+                : []),
+            ]}
+          />
         )}
 
         {/* ── Functions ── */}
