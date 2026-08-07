@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -14,8 +14,6 @@ import {
   BookOpen,
   Stethoscope,
   Info,
-  Minus,
-  Plus,
   RotateCcw,
   ZoomIn,
 } from 'lucide-react'
@@ -105,21 +103,73 @@ type GalleryImage = {
 function ImageGallery({ images }: { images: GalleryImage[] }) {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null)
   const [zoom, setZoom] = useState(1)
+  const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const pointers = useRef(new Map<number, { x: number; y: number }>())
+  const pinchStart = useRef<{ distance: number; zoom: number } | null>(null)
+  const panStart = useRef<{ x: number; y: number; offsetX: number; offsetY: number } | null>(null)
+
+  const resetView = () => {
+    setZoom(1)
+    setOffset({ x: 0, y: 0 })
+  }
 
   const openImage = (image: GalleryImage) => {
     setSelectedImage(image)
-    setZoom(1)
+    resetView()
   }
 
   const closeImage = () => {
     setSelectedImage(null)
-    setZoom(1)
+    resetView()
   }
 
-  const adjustZoom = (amount: number) => {
-    setZoom((currentZoom) =>
-      Math.min(3, Math.max(1, Number((currentZoom + amount).toFixed(1))))
-    )
+  const updateZoom = (nextZoom: number) => {
+    const clampedZoom = Math.min(4, Math.max(1, nextZoom))
+    setZoom(clampedZoom)
+    if (clampedZoom === 1) setOffset({ x: 0, y: 0 })
+  }
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId)
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
+
+    if (pointers.current.size === 2) {
+      const [first, second] = [...pointers.current.values()]
+      pinchStart.current = {
+        distance: Math.hypot(second.x - first.x, second.y - first.y),
+        zoom,
+      }
+      panStart.current = null
+    } else if (zoom > 1) {
+      panStart.current = { x: event.clientX, y: event.clientY, offsetX: offset.x, offsetY: offset.y }
+    }
+  }
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!pointers.current.has(event.pointerId)) return
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
+
+    if (pointers.current.size === 2 && pinchStart.current) {
+      const [first, second] = [...pointers.current.values()]
+      const distance = Math.hypot(second.x - first.x, second.y - first.y)
+      updateZoom(pinchStart.current.zoom * (distance / pinchStart.current.distance))
+    } else if (pointers.current.size === 1 && panStart.current && zoom > 1) {
+      setOffset({
+        x: panStart.current.offsetX + event.clientX - panStart.current.x,
+        y: panStart.current.offsetY + event.clientY - panStart.current.y,
+      })
+    }
+  }
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    pointers.current.delete(event.pointerId)
+    if (pointers.current.size < 2) pinchStart.current = null
+    if (pointers.current.size === 0) panStart.current = null
+  }
+
+  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    updateZoom(zoom - event.deltaY * 0.002)
   }
 
   return (
@@ -170,53 +220,44 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
                 {selectedImage?.caption}
               </DialogTitle>
               <DialogDescription className="sr-only">
-                Use the controls to zoom this specimen image.
+                Pinch with two fingers or use the mouse wheel to zoom. Drag to pan when zoomed in.
               </DialogDescription>
             </div>
-            <span className="shrink-0 font-mono text-xs text-muted-foreground">
-              {Math.round(zoom * 100)}%
+            <span className="shrink-0 text-xs text-muted-foreground">
+              Pinch or scroll to zoom
             </span>
           </div>
 
-          <div className="flex max-h-[70vh] min-h-64 items-center justify-center overflow-auto rounded-lg bg-muted p-2 sm:min-h-[50vh]">
+          <div
+            className="flex max-h-[70vh] min-h-64 items-center justify-center overflow-hidden rounded-lg bg-muted p-2 touch-none select-none sm:min-h-[50vh]"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            onWheel={handleWheel}
+          >
             {selectedImage && (
               <img
                 src={selectedImage.src}
                 alt={selectedImage.alt}
-                className="max-h-[65vh] max-w-full object-contain transition-transform duration-200"
-                style={{ transform: `scale(${zoom})` }}
+                draggable={false}
+                className="max-h-[65vh] max-w-full origin-center object-contain will-change-transform"
+                style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})` }}
                 crossOrigin="anonymous"
               />
             )}
           </div>
 
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+            <span>Pinch with two fingers to zoom</span>
             <button
               type="button"
-              onClick={() => adjustZoom(-0.25)}
-              disabled={zoom <= 1}
-              className="inline-flex size-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
-              aria-label="Zoom out"
-            >
-              <Minus aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setZoom(1)}
-              disabled={zoom === 1}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+              onClick={resetView}
+              disabled={zoom === 1 && offset.x === 0 && offset.y === 0}
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 font-medium text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
             >
               <RotateCcw data-icon="inline-start" aria-hidden="true" />
               Reset
-            </button>
-            <button
-              type="button"
-              onClick={() => adjustZoom(0.25)}
-              disabled={zoom >= 3}
-              className="inline-flex size-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
-              aria-label="Zoom in"
-            >
-              <Plus aria-hidden="true" />
             </button>
           </div>
         </DialogContent>
