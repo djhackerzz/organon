@@ -32,7 +32,7 @@ export function QRCodeDisplay({
       width: 800,
       margin: 2,
       errorCorrectionLevel: 'H',
-      color: { dark: '#0f2027', light: '#ffffff' },
+      color: { dark: '#201d17', light: '#ffffff' },
     })
       .then((dataUrl) => {
         if (!cancelled) setQrDataUrl(dataUrl)
@@ -63,19 +63,19 @@ export function QRCodeDisplay({
   return (
     <div className="flex flex-col items-center gap-6">
       <div id="print-label" className="print-label w-72 overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm">
-        <div className="flex items-center justify-between bg-[#0f4c5c] px-4 py-3">
+        <div className="flex items-center justify-between bg-[#2c5d3d] px-4 py-3">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-widest text-white/80">Department of Anatomy</p>
-            <p className="mt-0.5 text-xs font-semibold text-white">Anatomy Museum</p>
+            <p className="mt-0.5 font-display text-xs font-semibold text-white">Museum of Anatomy</p>
           </div>
           <span className="font-mono text-[10px] text-white/70">{specimenNumber}</span>
         </div>
 
         <div className="px-4 pb-2 pt-4">
-          <h2 className="text-lg font-bold leading-tight">{specimenName}</h2>
+          <h2 className="font-display text-lg font-semibold leading-tight">{specimenName}</h2>
           <div className="mt-2 flex flex-wrap gap-1.5">
-            <span className="rounded-full bg-[#e8f4f8] px-2 py-0.5 text-[10px] font-medium text-[#0f4c5c]">{systemCategory}</span>
-            <span className="rounded-full bg-[#e8f4f8] px-2 py-0.5 text-[10px] font-medium text-[#0f4c5c]">{preservationMethod}</span>
+            <span className="rounded-full bg-[#e9f0e7] px-2 py-0.5 text-[10px] font-medium text-[#2c5d3d]">{systemCategory}</span>
+            <span className="rounded-full bg-[#e9f0e7] px-2 py-0.5 text-[10px] font-medium text-[#2c5d3d]">{preservationMethod}</span>
           </div>
         </div>
 
@@ -87,7 +87,7 @@ export function QRCodeDisplay({
               {qrError || 'Creating QR code…'}
             </div>
           )}
-          <p className="text-center text-[10px] text-[#0f4c5c]/70">Scan with phone camera to learn more</p>
+          <p className="text-center text-[10px] text-[#2c5d3d]/70">Scan with phone camera to learn more</p>
         </div>
       </div>
 

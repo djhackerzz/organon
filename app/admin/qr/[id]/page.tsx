@@ -44,9 +44,9 @@ export default async function QRPage({
 
       <main className="flex min-h-[calc(100svh-57px)] flex-col items-center justify-center px-4 py-10 print:min-h-0 print:px-0 print:py-0">
         <div className="mb-6 text-center print:hidden">
-          <p className="font-mono text-xs text-muted-foreground">{specimen.specimenNumber}</p>
-          <h1 className="mt-1 text-xl font-bold text-foreground">{specimen.name}</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">QR Label — print and laminate for the jar</p>
+          <p className="font-sans text-[0.6rem] font-semibold tracking-[0.2em] text-muted-foreground uppercase">{specimen.specimenNumber}</p>
+          <h1 className="mt-1 font-display text-2xl font-semibold tracking-tight text-foreground">{specimen.name}</h1>
+          <p className="mt-1 font-sans text-xs text-muted-foreground">QR Label — print and laminate for the jar</p>
         </div>
 
         <QRCodeDisplay

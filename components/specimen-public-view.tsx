@@ -1,7 +1,6 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -23,6 +22,30 @@ interface SpecimenPublicViewProps {
   settings: SiteSettings
 }
 
+function MuseumMark() {
+  return (
+    <span
+      className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-foreground/70"
+      aria-hidden="true"
+    >
+      <span className="grid h-6 w-6 place-items-center rounded-full border border-foreground/40">
+        <span className="font-display text-[0.85rem] font-semibold italic leading-none text-foreground">
+          A
+        </span>
+      </span>
+    </span>
+  )
+}
+
+function Diamond() {
+  return (
+    <span
+      className="inline-block h-1.5 w-1.5 shrink-0 rotate-45"
+      aria-hidden="true"
+    />
+  )
+}
+
 function BulletContent({ text }: { text: string }) {
   const lines = text
     .split('\n')
@@ -30,15 +53,17 @@ function BulletContent({ text }: { text: string }) {
     .filter(Boolean)
 
   return (
-    <ul className="flex flex-col gap-2" role="list">
+    <ul className="flex flex-col gap-2.5" role="list">
       {lines.map((line, i) => {
         const clean = line.replace(/^[•\-\*]\s*/, '')
         return (
-          <li key={i} className="flex gap-2.5 items-start text-sm leading-relaxed">
-            <span
-              className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0"
-              aria-hidden="true"
-            />
+          <li
+            key={i}
+            className="flex items-start gap-3 text-[0.95rem] leading-relaxed text-foreground/90"
+          >
+            <span className="mt-[0.52em] text-primary">
+              <Diamond />
+            </span>
             <span>{clean}</span>
           </li>
         )
@@ -60,26 +85,25 @@ function SectionCard({
 }) {
   return (
     <section
-      className={`rounded-xl border p-5 flex flex-col gap-3 ${
+      className={`rounded-sm border p-5 sm:p-6 ${
         accent
-          ? 'border-primary/30 bg-primary/5'
+          ? 'border-primary/40 bg-primary/[0.035]'
           : 'border-border bg-card'
       }`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <Icon
-          className={`h-4 w-4 shrink-0 ${accent ? 'text-primary' : 'text-muted-foreground'}`}
+          className={`h-3.5 w-3.5 shrink-0 ${accent ? 'text-primary' : 'text-muted-foreground'}`}
           aria-hidden="true"
         />
         <h2
-          className={`text-xs font-semibold uppercase tracking-widest ${
-            accent ? 'text-primary' : 'text-muted-foreground'
-          }`}
+          className={`label-caps ${accent ? 'text-primary' : 'text-muted-foreground'}`}
         >
           {title}
         </h2>
+        <span className="h-px flex-1 bg-border" aria-hidden="true" />
       </div>
-      {children}
+      <div className="mt-4">{children}</div>
     </section>
   )
 }
@@ -87,9 +111,11 @@ function SectionCard({
 function InfoRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null
   return (
-    <div className="flex gap-3 text-sm">
-      <span className="text-muted-foreground w-28 shrink-0">{label}</span>
-      <span className="text-foreground">{value}</span>
+    <div className="grid grid-cols-[8.5rem_1fr] gap-4 py-2.5 text-sm">
+      <dt className="font-sans text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+        {label}
+      </dt>
+      <dd className="text-foreground">{value}</dd>
     </div>
   )
 }
@@ -175,16 +201,16 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-4 sm:flex-row">
         {images.map((image) => (
           <button
             key={image.src}
             type="button"
             onClick={() => openImage(image)}
-            className="group flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-muted text-left transition-colors hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="group flex flex-1 flex-col overflow-hidden rounded-sm border border-border bg-card text-left transition-colors hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={`Open larger view: ${image.caption}`}
           >
-            <span className="relative flex min-h-48 w-full items-center justify-center overflow-hidden">
+            <span className="relative flex min-h-48 w-full items-center justify-center overflow-hidden bg-muted/50">
               <img
                 src={image.src}
                 alt={image.alt}
@@ -198,7 +224,7 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
                 </span>
               </span>
             </span>
-            <span className="border-t border-border px-3 py-2 text-center text-xs text-muted-foreground">
+            <span className="border-t border-border/80 px-3 py-2.5 text-center text-xs italic text-muted-foreground">
               {image.caption}
             </span>
           </button>
@@ -217,7 +243,7 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
         >
           <div className="flex items-center justify-between gap-3 pr-10">
             <div className="min-w-0">
-              <DialogTitle className="truncate text-sm">
+              <DialogTitle className="truncate font-display text-base font-semibold">
                 {selectedImage?.caption}
               </DialogTitle>
               <DialogDescription className="sr-only">
@@ -230,7 +256,7 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
           </div>
 
           <div
-            className="flex max-h-[70vh] min-h-64 items-center justify-center overflow-hidden rounded-lg bg-muted p-2 touch-none select-none sm:min-h-[50vh]"
+            className="flex max-h-[70vh] min-h-64 items-center justify-center overflow-hidden rounded-sm bg-muted p-2 touch-none select-none sm:min-h-[50vh]"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -255,7 +281,7 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
               type="button"
               onClick={resetView}
               disabled={zoom === 1 && offset.x === 0 && offset.y === 0}
-              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 font-medium text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-sm border border-border px-2 py-1 font-medium text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
             >
               <RotateCcw data-icon="inline-start" aria-hidden="true" />
               Reset
@@ -270,37 +296,69 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
 export function SpecimenPublicView({ specimen, settings }: SpecimenPublicViewProps) {
   return (
     <div className="min-h-svh bg-background">
-      {/* Top bar */}
-      <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm">
-        <div className="max-w-2xl mx-auto px-4 h-12 flex items-center gap-2">
-          <FlaskConical className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
-          <span className="text-sm font-medium text-foreground truncate">
-            Anatomy Museum — Specimen Catalog
-          </span>
-          <span className="ml-auto font-mono text-xs text-muted-foreground shrink-0">
-            {specimen.specimenNumber}
-          </span>
+      {/* Masthead */}
+      <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur-sm">
+        <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-4">
+          <MuseumMark />
+          <div className="flex min-w-0 flex-col leading-none">
+            <span className="truncate font-display text-[0.98rem] font-semibold tracking-tight text-foreground">
+              Museum of Anatomy
+            </span>
+            <span className="mt-1 truncate font-sans text-[0.56rem] font-semibold tracking-[0.2em] text-muted-foreground uppercase">
+              Catalogue of preserved specimens
+            </span>
+          </div>
+          <div className="ml-auto flex shrink-0 flex-col items-end gap-1">
+            <span className="font-sans text-[0.6rem] font-semibold tracking-[0.2em] text-muted-foreground uppercase">
+              Plate
+            </span>
+            <span className="font-mono text-xs text-foreground">
+              {specimen.specimenNumber}
+            </span>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-5">
-
-        {/* ── Title block ── */}
-        <div className="flex flex-col gap-2 pt-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary" className="text-xs">
+      <main className="mx-auto flex max-w-2xl flex-col gap-7 px-4 pt-7 pb-6 sm:gap-8 sm:pt-9">
+        {/* Plate title */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <span className="label-caps text-primary">
               {specimen.systemCategory}
-            </Badge>
+            </span>
+            <span className="h-px flex-1 bg-border" aria-hidden="true" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground text-balance leading-tight">
+
+          <h1 className="font-display text-4xl leading-[1.05] font-semibold tracking-tight text-balance text-foreground sm:text-[2.75rem]">
             {specimen.name}
           </h1>
-          <p className="text-muted-foreground text-sm leading-relaxed">
+
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-sans text-xs text-muted-foreground">
+            {specimen.organ && (
+              <>
+                <span>{specimen.organ}</span>
+                <span className="text-border" aria-hidden="true">
+                  ·
+                </span>
+              </>
+            )}
+            <span className="font-mono">{specimen.specimenNumber}</span>
+            {specimen.preservationMethod && (
+              <>
+                <span className="text-border" aria-hidden="true">
+                  ·
+                </span>
+                <span>{specimen.preservationMethod}</span>
+              </>
+            )}
+          </div>
+
+          <p className="text-[0.95rem] leading-relaxed text-foreground/90">
             {specimen.description}
           </p>
         </div>
 
-        {/* ── Images ── */}
+        {/* Images */}
         {settings.showImages && (specimen.specimenPhotoUrl || specimen.imageUrl) && (
           <ImageGallery
             images={[
@@ -335,49 +393,64 @@ export function SpecimenPublicView({ specimen, settings }: SpecimenPublicViewPro
         )}
 
         {settings.showClinicalRelevance && (
-          <SectionCard icon={Stethoscope} title={settings.clinicalRelevanceHeading} accent>
+          <SectionCard
+            icon={Stethoscope}
+            title={settings.clinicalRelevanceHeading}
+            accent
+          >
             <BulletContent text={specimen.clinicalRelevance} />
           </SectionCard>
         )}
 
         {settings.showSpecimenDetails && (
           <SectionCard icon={Info} title={settings.specimenDetailsHeading}>
-            <div className="flex flex-col gap-2">
+            <dl className="divide-y divide-border/80">
               <InfoRow label="Organ" value={specimen.organ} />
-              <InfoRow label="Body System" value={specimen.systemCategory} />
-              <InfoRow label="Specimen No." value={specimen.specimenNumber} />
+              <InfoRow label="Body system" value={specimen.systemCategory} />
+              <InfoRow label="Specimen no." value={specimen.specimenNumber} />
               <InfoRow label="Preservation" value={specimen.preservationMethod} />
-              <InfoRow label="Jar Size" value={specimen.jarSize} />
+              <InfoRow label="Jar size" value={specimen.jarSize} />
               <InfoRow label="Collected" value={specimen.collectionDate} />
-            </div>
+            </dl>
           </SectionCard>
         )}
 
         {settings.showDonorInformation && (specimen.sex || specimen.age || specimen.donorInfo) && (
           <SectionCard icon={Info} title={settings.donorInformationHeading}>
-            <div className="flex flex-col gap-2">
+            <dl className="divide-y divide-border/80">
               <InfoRow label="Sex" value={specimen.sex} />
               <InfoRow label="Age at death" value={specimen.age} />
               <InfoRow label="Notes" value={specimen.donorInfo} />
-            </div>
+            </dl>
           </SectionCard>
         )}
 
         {settings.showAdditionalNotes && specimen.additionalNotes && (
           <SectionCard icon={BookOpen} title={settings.additionalNotesHeading}>
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+            <p className="dropcap text-[0.95rem] leading-relaxed whitespace-pre-wrap text-foreground/90">
               {specimen.additionalNotes}
             </p>
           </SectionCard>
         )}
 
         {settings.showFooter && (
-          <footer className="border-t border-border pt-5 text-xs text-muted-foreground text-center flex flex-col gap-1 pb-8">
-          <p>Department of Anatomy — Museum Specimen Catalog</p>
-          <p className="font-mono">{specimen.specimenNumber}</p>
-          <p className="mt-1">
-            Diagram sourced from Wikimedia Commons (CC licensed) where applicable.
-          </p>
+          <footer className="flex flex-col items-center gap-2.5 border-t border-border pt-6 pb-2 text-center">
+            <div className="fleuron">
+              <span className="text-primary">
+                <Diamond />
+              </span>
+            </div>
+            <p className="label-caps text-muted-foreground">
+              Department of Anatomy — Museum Specimen Catalogue
+            </p>
+            <p className="font-mono text-xs text-muted-foreground">
+              {specimen.specimenNumber}
+            </p>
+            <p className="max-w-md text-xs leading-relaxed text-muted-foreground/80">
+              Photographs of the preserved collection are the property of the
+              department. Diagrams sourced from Wikimedia Commons (CC licensed)
+              where applicable.
+            </p>
           </footer>
         )}
       </main>

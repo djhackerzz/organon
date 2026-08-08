@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const specimen = await getSpecimenById(id)
   if (!specimen) return {}
   return {
-    title: `${specimen.name} — Anatomy Museum`,
+    title: `${specimen.name}, ${specimen.specimenNumber}`,
     description: specimen.description,
   }
 }

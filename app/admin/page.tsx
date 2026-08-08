@@ -6,6 +6,19 @@ import { AdminHeader } from '@/components/admin-header'
 import { SpecimenCard } from '@/components/specimen-card'
 import { AddSpecimenButton } from '@/components/add-specimen-button'
 
+function Stat({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div className="rounded-sm border border-border bg-card px-4 py-5">
+      <p className="font-display text-3xl font-semibold tracking-tight text-foreground">
+        {value}
+      </p>
+      <p className="mt-1.5 font-sans text-[0.62rem] font-semibold tracking-[0.16em] text-muted-foreground uppercase">
+        {label}
+      </p>
+    </div>
+  )
+}
+
 export default async function AdminPage() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect('/sign-in')
@@ -21,46 +34,47 @@ export default async function AdminPage() {
     <div className="min-h-svh bg-background">
       <AdminHeader userName={session.user.name} />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-card border border-border rounded-lg p-4">
-            <p className="text-2xl font-bold text-foreground">{specimens.length}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Total Specimens</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4">
-            <p className="text-2xl font-bold text-foreground">
-              {new Set(specimens.map((s) => s.systemCategory)).size}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">Body Systems</p>
-          </div>
-          <div className="bg-card border border-border rounded-lg p-4">
-            <p className="text-2xl font-bold text-foreground">
-              {specimens.filter((s) => s.imageUrl).length}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">With Photos</p>
-          </div>
+        <div className="mb-8 grid grid-cols-3 gap-4">
+          <Stat value={specimens.length} label="Total specimens" />
+          <Stat
+            value={new Set(specimens.map((s) => s.systemCategory)).size}
+            label="Body systems"
+          />
+          <Stat
+            value={specimens.filter((s) => s.imageUrl || s.specimenPhotoUrl).length}
+            label="With photos"
+          />
         </div>
 
         {/* Header + Add button */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Specimens</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Manage your museum collection
+            <div className="flex items-center gap-3">
+              <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+                Specimens
+              </h1>
+              <span className="h-px flex-1 bg-border" aria-hidden="true" />
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage the museum collection
             </p>
           </div>
           <AddSpecimenButton />
         </div>
 
         {specimens.length === 0 ? (
-          <div className="text-center py-20 border border-dashed border-border rounded-xl">
-            <p className="text-muted-foreground text-sm">
-              No specimens yet. Add your first one above.
+          <div className="rounded-sm border border-dashed border-border py-20 text-center">
+            <p className="font-display text-lg italic text-muted-foreground">
+              The catalogue is empty.
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Add your first specimen above.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {specimens.map((specimen) => (
               <SpecimenCard
                 key={specimen.id}

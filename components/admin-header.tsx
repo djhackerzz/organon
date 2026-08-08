@@ -4,10 +4,25 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
-import { LogOut, FlaskConical, Settings } from 'lucide-react'
+import { LogOut, Settings } from 'lucide-react'
 
 interface AdminHeaderProps {
   userName: string
+}
+
+function MuseumMark({ className }: { className?: string }) {
+  return (
+    <span
+      className={`grid place-items-center rounded-full border border-foreground/70 ${className ?? 'h-8 w-8'}`}
+      aria-hidden="true"
+    >
+      <span className="grid h-5 w-5 place-items-center rounded-full border border-foreground/40">
+        <span className="font-display text-[0.78rem] font-semibold italic leading-none text-foreground">
+          A
+        </span>
+      </span>
+    </span>
+  )
 }
 
 export function AdminHeader({ userName }: AdminHeaderProps) {
@@ -21,18 +36,20 @@ export function AdminHeader({ userName }: AdminHeaderProps) {
 
   return (
     <header className="border-b border-border bg-card">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <FlaskConical className="h-5 w-5 text-primary" aria-hidden="true" />
-          <span className="font-semibold text-foreground text-sm">
-            Anatomy Museum
-          </span>
-          <span className="text-muted-foreground text-sm hidden sm:inline">
-            — Admin Dashboard
-          </span>
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <MuseumMark />
+          <div className="flex min-w-0 flex-col leading-none">
+            <span className="truncate font-display text-sm font-semibold tracking-tight text-foreground">
+              Museum of Anatomy
+            </span>
+            <span className="mt-1 truncate font-sans text-[0.55rem] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+              Admin Catalogue
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground hidden sm:inline pl-1">
+        <div className="flex items-center gap-1">
+          <span className="hidden pr-1 font-sans text-xs text-muted-foreground sm:inline">
             {userName}
           </span>
           <Button

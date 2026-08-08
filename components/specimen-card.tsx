@@ -50,23 +50,23 @@ export function SpecimenCard({ specimen, baseUrl }: SpecimenCardProps) {
 
   return (
     <>
-      <Card className="p-4 flex flex-col gap-3">
+      <Card className="flex flex-col gap-3 rounded-sm p-4">
         {(specimen.specimenPhotoUrl || specimen.imageUrl) && (
-          <div className="h-32 rounded-md overflow-hidden bg-muted">
+          <div className="h-32 overflow-hidden rounded-sm bg-muted">
             <img
               src={specimen.specimenPhotoUrl ?? specimen.imageUrl ?? ''}
               alt={specimen.name}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
           </div>
         )}
 
         <div className="flex items-start justify-between gap-2">
-          <div>
-            <p className="text-xs text-muted-foreground font-mono">
+          <div className="min-w-0">
+            <p className="font-sans text-[0.6rem] font-semibold tracking-[0.16em] text-muted-foreground uppercase">
               {specimen.specimenNumber}
             </p>
-            <h3 className="font-semibold text-foreground leading-tight">
+            <h3 className="font-display text-lg font-semibold leading-tight tracking-tight text-foreground">
               {specimen.name}
             </h3>
           </div>
@@ -75,7 +75,7 @@ export function SpecimenCard({ specimen, baseUrl }: SpecimenCardProps) {
           </Badge>
         </div>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
           {specimen.description}
         </p>
 
