@@ -24,11 +24,11 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Anatomy Museum — A Catalogue of Preserved Specimens',
+    default: 'Anatomy Museum — GMERS Medical College, Godhra',
     template: '%s · Anatomy Museum',
   },
   description:
-    'A digital catalogue of the preserved anatomical collection — scanned, labelled, and annotated for study. Each specimen carries its own plate and number.',
+    'The digital catalogue of the preserved anatomical collection at the Department of Anatomy, GMERS Medical College, Godhra — scanned, labelled, and annotated for study. Each specimen carries its own plate and number.',
 }
 
 export const viewport: Viewport = {

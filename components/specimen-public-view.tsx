@@ -305,7 +305,7 @@ export function SpecimenPublicView({ specimen, settings }: SpecimenPublicViewPro
               Museum of Anatomy
             </span>
             <span className="mt-1 truncate font-sans text-[0.56rem] font-semibold tracking-[0.2em] text-muted-foreground uppercase">
-              Catalogue of preserved specimens
+              Dept. of Anatomy · GMERS Medical College, Godhra
             </span>
           </div>
           <div className="ml-auto flex shrink-0 flex-col items-end gap-1">
@@ -441,7 +441,8 @@ export function SpecimenPublicView({ specimen, settings }: SpecimenPublicViewPro
               </span>
             </div>
             <p className="label-caps text-muted-foreground">
-              Department of Anatomy — Museum Specimen Catalogue
+              Department of Anatomy, GMERS Medical College, Godhra — Museum
+              Specimen Catalogue
             </p>
             <p className="font-mono text-xs text-muted-foreground">
               {specimen.specimenNumber}

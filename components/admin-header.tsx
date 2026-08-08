@@ -44,7 +44,7 @@ export function AdminHeader({ userName }: AdminHeaderProps) {
               Museum of Anatomy
             </span>
             <span className="mt-1 truncate font-sans text-[0.55rem] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-              Admin Catalogue
+              Dept. of Anatomy · GMERS Medical College, Godhra
             </span>
           </div>
         </div>

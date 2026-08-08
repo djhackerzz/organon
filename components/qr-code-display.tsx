@@ -62,32 +62,83 @@ export function QRCodeDisplay({
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div id="print-label" className="print-label w-72 overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-sm">
-        <div className="flex items-center justify-between bg-[#2c5d3d] px-4 py-3">
-          <div>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-white/80">Department of Anatomy</p>
-            <p className="mt-0.5 font-display text-xs font-semibold text-white">Museum of Anatomy</p>
-          </div>
-          <span className="font-mono text-[10px] text-white/70">{specimenNumber}</span>
-        </div>
+      <div id="print-label" className="print-label w-72 select-none bg-white text-neutral-900 shadow-sm">
+        <div className="border-2 border-neutral-900 p-1.5">
+          <div className="flex flex-col border border-neutral-900 px-4 py-3">
+            {/* Institution branding */}
+            <p className="text-center font-display text-[0.82rem] leading-snug font-semibold tracking-[0.12em] uppercase">
+              GMERS Medical College, Godhra
+            </p>
+            <p className="mt-0.5 text-center font-sans text-[0.58rem] font-semibold tracking-[0.24em] uppercase text-neutral-600">
+              Department of Anatomy
+            </p>
+            <p className="mt-0.5 text-center font-sans text-[0.5rem] tracking-[0.22em] uppercase text-neutral-500">
+              Museum of Anatomy
+            </p>
 
-        <div className="px-4 pb-2 pt-4">
-          <h2 className="font-display text-lg font-semibold leading-tight">{specimenName}</h2>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <span className="rounded-full bg-[#e9f0e7] px-2 py-0.5 text-[10px] font-medium text-[#2c5d3d]">{systemCategory}</span>
-            <span className="rounded-full bg-[#e9f0e7] px-2 py-0.5 text-[10px] font-medium text-[#2c5d3d]">{preservationMethod}</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-2 px-4 pb-4 pt-2">
-          {qrDataUrl ? (
-            <img src={qrDataUrl} alt="QR code for specimen information" className="h-[200px] w-[200px] rounded-md" />
-          ) : (
-            <div className="flex h-[200px] w-[200px] items-center justify-center rounded-md bg-muted p-4 text-center text-xs text-muted-foreground">
-              {qrError || 'Creating QR code…'}
+            <div className="my-2.5 flex items-center gap-2" aria-hidden="true">
+              <span className="h-px flex-1 bg-neutral-900/70" />
+              <span className="h-1 w-1 shrink-0 rotate-45 bg-neutral-900" />
+              <span className="h-px flex-1 bg-neutral-900/70" />
             </div>
-          )}
-          <p className="text-center text-[10px] text-[#2c5d3d]/70">Scan with phone camera to learn more</p>
+
+            {/* Plate number */}
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="font-sans text-[0.55rem] font-semibold tracking-[0.2em] uppercase text-neutral-600">
+                Specimen No.
+              </span>
+              <span className="font-mono text-[0.95rem] font-semibold tracking-wide">
+                {specimenNumber}
+              </span>
+            </div>
+
+            {/* Inner plate */}
+            <div className="mt-2 flex flex-col items-center border border-neutral-900/80 px-3 py-3">
+              <h2 className="text-center font-display text-lg leading-tight font-semibold italic">
+                {specimenName}
+              </h2>
+              <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1.5">
+                {systemCategory && (
+                  <span className="rounded-full border border-neutral-700 px-2 py-0.5 text-[0.5rem] font-semibold tracking-[0.12em] uppercase text-neutral-800">
+                    {systemCategory}
+                  </span>
+                )}
+                {preservationMethod && (
+                  <span className="rounded-full border border-neutral-700 px-2 py-0.5 text-[0.5rem] font-semibold tracking-[0.12em] uppercase text-neutral-800">
+                    {preservationMethod}
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-3 flex justify-center">
+                {qrDataUrl ? (
+                  <img
+                    src={qrDataUrl}
+                    alt="QR code for specimen information"
+                    className="h-[168px] w-[168px] border border-neutral-400 bg-white p-1"
+                  />
+                ) : (
+                  <div className="flex h-[168px] w-[168px] items-center justify-center border border-neutral-400 p-4 text-center text-xs text-neutral-500">
+                    {qrError || 'Creating QR code…'}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <p className="mt-2.5 text-center font-sans text-[0.5rem] tracking-[0.16em] uppercase text-neutral-500">
+              Scan with phone camera to learn more
+            </p>
+
+            <div className="mt-2.5 flex items-center gap-2" aria-hidden="true">
+              <span className="h-px flex-1 bg-neutral-900/70" />
+              <span className="h-1 w-1 shrink-0 rotate-45 bg-neutral-900" />
+              <span className="h-px flex-1 bg-neutral-900/70" />
+            </div>
+
+            <p className="mt-2 text-center font-serif text-[0.55rem] italic text-neutral-600">
+              Anatomy Museum — Catalogue of Preserved Specimens
+            </p>
+          </div>
         </div>
       </div>
 
@@ -116,8 +167,10 @@ export function QRCodeDisplay({
             top: 0 !important;
             transform: translateX(-50%) !important;
             width: 72mm !important;
-            border: 1px solid #ccc !important;
+            border: none !important;
             box-shadow: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
         }
       `}</style>
