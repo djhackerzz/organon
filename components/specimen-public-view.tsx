@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import Link from 'next/link'
 import {
   Dialog,
   DialogContent,
@@ -308,13 +309,21 @@ export function SpecimenPublicView({ specimen, settings }: SpecimenPublicViewPro
               Dept. of Anatomy · GMERS Medical College, Godhra
             </span>
           </div>
-          <div className="ml-auto flex shrink-0 flex-col items-end gap-1">
-            <span className="font-sans text-[0.6rem] font-semibold tracking-[0.2em] text-muted-foreground uppercase">
-              Plate
-            </span>
-            <span className="font-mono text-xs text-foreground">
-              {specimen.specimenNumber}
-            </span>
+          <div className="ml-auto flex shrink-0 items-center gap-3">
+            <Link
+              href="/catalogue"
+              className="font-sans text-[0.62rem] font-semibold tracking-[0.18em] text-muted-foreground uppercase underline-offset-4 transition-colors hover:text-foreground hover:underline"
+            >
+              Catalogue
+            </Link>
+            <div className="flex shrink-0 flex-col items-end gap-1 border-l border-border pl-3">
+              <span className="font-sans text-[0.6rem] font-semibold tracking-[0.2em] text-muted-foreground uppercase">
+                Plate
+              </span>
+              <span className="font-mono text-xs text-foreground">
+                {specimen.specimenNumber}
+              </span>
+            </div>
           </div>
         </div>
       </header>
