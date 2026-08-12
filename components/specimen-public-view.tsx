@@ -240,7 +240,7 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
       >
         <DialogContent
           showCloseButton
-          className="max-w-5xl gap-3 overflow-hidden bg-background/95 p-3 sm:p-4"
+          className="flex max-h-[calc(100svh-1rem)] max-w-5xl flex-col gap-3 overflow-hidden bg-background/95 p-3 sm:p-4"
         >
           <div className="flex items-center justify-between gap-3 pr-10">
             <div className="min-w-0">
@@ -257,7 +257,7 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
           </div>
 
           <div
-            className="flex max-h-[70vh] min-h-64 items-center justify-center overflow-hidden rounded-sm bg-muted p-2 touch-none select-none sm:min-h-[50vh]"
+            className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-sm bg-muted p-2 touch-none select-none sm:min-h-[50vh]"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -269,7 +269,7 @@ function ImageGallery({ images }: { images: GalleryImage[] }) {
                 src={selectedImage.src}
                 alt={selectedImage.alt}
                 draggable={false}
-                className="max-h-[65vh] max-w-full origin-center object-contain will-change-transform"
+                className="max-h-full max-w-full origin-center object-contain will-change-transform"
                 style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})` }}
                 crossOrigin="anonymous"
               />
