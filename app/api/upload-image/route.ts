@@ -2,9 +2,14 @@ import { put } from '@vercel/blob'
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
+import { isDemoMode } from '@/lib/demo-mode'
+import { mkdir, writeFile } from 'fs/promises'
+import { join } from 'path'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+
+const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads')
 
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -27,8 +32,16 @@ export async function POST(request: Request) {
     }
 
     const extension = file.type.split('/')[1].replace('jpeg', 'jpg')
+    const filename = `${crypto.randomUUID()}.${extension}`
+
+    if (isDemoMode()) {
+      await mkdir(UPLOADS_DIR, { recursive: true })
+      await writeFile(join(UPLOADS_DIR, filename), Buffer.from(await file.arrayBuffer()))
+      return NextResponse.json({ url: `/api/image?pathname=${filename}` })
+    }
+
     const blob = await put(
-      `specimens/${session.user.id}/${crypto.randomUUID()}.${extension}`,
+      `specimens/${session.user.id}/${filename}`,
       file,
       { access: 'public', addRandomSuffix: false },
     )

@@ -2,7 +2,7 @@
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { siteSettings } from '@/lib/db/schema'
+import { siteSettings } from '@/lib/db/tables'
 import { eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'

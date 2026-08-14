@@ -15,3 +15,7 @@ node_modules
 .DS_Store
 .env*
 *.tsbuildinfo
+
+# Demo runtime artifacts
+data/
+public/uploads/

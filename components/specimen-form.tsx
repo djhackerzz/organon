@@ -16,6 +16,8 @@ import {
 import { createSpecimen, updateSpecimen } from '@/app/actions/specimens'
 import type { Specimen } from '@/lib/db/schema'
 import { ImageUploadField } from '@/components/image-upload-field'
+import { findOrganContent } from '@/lib/organ-content'
+import { Sparkles } from 'lucide-react'
 
 const BODY_SYSTEMS = [
   'Cardiovascular System',
@@ -73,6 +75,22 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
 
   const set = (key: keyof typeof form) => (value: string) =>
     setForm((f) => ({ ...f, [key]: value }))
+
+  const quickFill = findOrganContent(form.organ)
+
+  const handleQuickFill = () => {
+    if (!quickFill) return
+    setForm((f) => ({
+      ...f,
+      name: f.name || quickFill.name,
+      systemCategory: f.systemCategory || quickFill.systemCategory,
+      preservationMethod: f.preservationMethod || quickFill.preservationMethod,
+      description: f.description || quickFill.description,
+      functions: f.functions || quickFill.functions,
+      clinicalRelevance: f.clinicalRelevance || quickFill.clinicalRelevance,
+      imageUrl: f.imageUrl || quickFill.imageUrl || '',
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -141,6 +159,16 @@ export function SpecimenForm({ specimen, onSuccess }: SpecimenFormProps) {
               required
               placeholder="e.g. Heart"
             />
+            {quickFill && (
+              <button
+                type="button"
+                onClick={handleQuickFill}
+                className="mt-0.5 inline-flex items-center gap-1.5 self-start rounded-sm border border-primary/40 bg-primary/5 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
+              >
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                Quick-fill {quickFill.name} content
+              </button>
+            )}
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="systemCategory">Body System *</Label>

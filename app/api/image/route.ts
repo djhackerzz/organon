@@ -1,10 +1,38 @@
 import { get } from '@vercel/blob'
 import { type NextRequest, NextResponse } from 'next/server'
+import { isDemoMode } from '@/lib/demo-mode'
+import { readFile } from 'fs/promises'
+import { join } from 'path'
+
+const UPLOADS_DIR = join(process.cwd(), 'public', 'uploads')
 
 export async function GET(request: NextRequest) {
   const pathname = request.nextUrl.searchParams.get('pathname')
 
-  if (!pathname || !pathname.startsWith('specimen-images/')) {
+  if (!pathname) {
+    return new NextResponse('Not found', { status: 404 })
+  }
+
+  if (isDemoMode()) {
+    const safe = pathname.replace(/^.*[\\/]/, '')
+    try {
+      const data = await readFile(join(UPLOADS_DIR, safe))
+      const ext = safe.split('.').pop()?.toLowerCase() ?? ''
+      const contentType = ext === 'svg' ? 'image/svg+xml'
+        : ext === 'png' ? 'image/png'
+        : ext === 'webp' ? 'image/webp'
+        : ext === 'gif' ? 'image/gif'
+        : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
+        : 'application/octet-stream'
+      return new NextResponse(new Uint8Array(data), {
+        headers: { 'Content-Type': contentType },
+      })
+    } catch {
+      return new NextResponse('Image unavailable', { status: 404 })
+    }
+  }
+
+  if (!pathname.startsWith('specimen-images/')) {
     return new NextResponse('Not found', { status: 404 })
   }
 
