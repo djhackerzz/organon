@@ -16,11 +16,17 @@ function log(msg) {
   console.log(`[demo] ${msg}`)
 }
 
+function isWin() {
+  return process.platform === 'win32'
+}
+
 function run(cmd, args, opts = {}) {
   return new Promise((resolve, reject) => {
     log(`${cmd} ${args.join(' ')}`)
+    // On Windows, npm/npx are .cmd shims that spawn() cannot run directly.
     const child = spawn(cmd, args, {
       stdio: opts.silent ? 'ignore' : 'inherit',
+      shell: isWin(),
       env: { ...process.env, ...opts.env },
     })
     child.on('exit', (code) => {
@@ -76,10 +82,16 @@ async function main() {
   }
 
   log(`Starting the offline demo at http://localhost:${PORT}`)
-  const server = spawn('node_modules/.bin/next', ['start', '-p', PORT], {
-    stdio: 'inherit',
-    env: { ...process.env, DEMO_MODE, DEMO_DB_PATH: DB_PATH },
-  })
+  // Use `node node_modules/next/dist/bin/next` instead of the .bin shim so it
+  // works the same on Windows and POSIX (the shim is .cmd-only on Windows).
+  const server = spawn(
+    process.execPath,
+    [join(root, 'node_modules', 'next', 'dist', 'bin', 'next'), 'start', '-p', PORT],
+    {
+      stdio: 'inherit',
+      env: { ...process.env, DEMO_MODE, DEMO_DB_PATH: DB_PATH },
+    },
+  )
 
   const base = `http://localhost:${PORT}`
   const up = await waitForServer(base)
@@ -106,7 +118,7 @@ async function main() {
     const cmd = process.platform === 'darwin'
       ? `open ${base}`
       : process.platform === 'win32'
-        ? `start ${base}`
+        ? `start "" "${base}"`
         : `xdg-open ${base}`
     execSync(cmd, { stdio: 'ignore' })
   } catch {
