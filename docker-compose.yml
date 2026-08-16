@@ -1,0 +1,14 @@
+services:
+  anatomy-museum:
+    build: .
+    image: anatomy-museum-demo
+    container_name: anatomy-museum-demo
+    ports:
+      - "3000:3000"
+    # Demo data persists between runs in this volume.
+    volumes:
+      - anatomy_demo_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  anatomy_demo_data:
